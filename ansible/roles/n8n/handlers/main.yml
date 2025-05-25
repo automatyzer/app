@@ -1,0 +1,15 @@
+---
+- name: Log n8n start status
+  debug:
+    msg: |
+      n8n service has been started successfully.
+      Web interface is available at: {{ n8n_protocol | default('http') }}://{{ n8n_host | default('localhost') }}:{{ n8n_port | default('5678') }}
+  when: n8n_health is defined and n8n_health.status == 200
+
+- name: Log n8n start failure
+  debug:
+    msg: |
+      [WARNING] Failed to start n8n service.
+      Please check the container logs: docker logs n8n
+  when: n8n_health is not defined or n8n_health.status != 200
+  failed_when: true

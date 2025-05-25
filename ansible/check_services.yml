@@ -4,13 +4,22 @@
   connection: local
   become: true
   gather_facts: true
+  vars:
+    # Default n8n configuration - can be overridden in inventory or command line
+    n8n_host: "{{ lookup('env', 'N8N_HOST') | default('0.0.0.0', true) }}"
+    n8n_port: "{{ lookup('env', 'N8N_PORT') | default('5678', true) }}"
+    n8n_protocol: "{{ lookup('env', 'N8N_PROTOCOL') | default('http', true) }}"
+    n8n_editor_base_url: "{{ lookup('env', 'N8N_EDITOR_BASE_URL') | default('http://localhost:5678', true) }}"
 
   roles:
     - ollama
-    # Add other service roles here if needed
+    - n8n
 
   tasks:
-    - name: Display final status
+    - name: Display services status
       debug:
-        msg: "All required services are running"
+        msg: |
+          All required services are running:
+          - Ollama: http://localhost:11434
+          - n8n: {{ n8n_protocol }}://{{ n8n_host }}:{{ n8n_port }}
       when: not ansible_check_mode

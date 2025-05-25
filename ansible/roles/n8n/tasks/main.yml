@@ -1,0 +1,41 @@
+---
+- name: Check if n8n is running in Docker
+  docker_container_info:
+    name: n8n
+  register: n8n_container
+  ignore_errors: yes
+  changed_when: false
+
+- name: Start n8n container if not running
+  block:
+    - name: Ensure n8n container is running
+      docker_container:
+        name: n8n
+        image: n8nio/n8n:latest
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "5678:5678"
+        volumes:
+          - n8n_data:/home/node/.n8n
+        env:
+          N8N_HOST: "{{ n8n_host | default('0.0.0.0') }}"
+          N8N_PORT: "{{ n8n_port | default('5678') }}
+          N8N_PROTOCOL: "{{ n8n_protocol | default('http') }}"
+          N8N_EDITOR_BASE_URL: "{{ n8n_editor_base_url | default('http://localhost:5678') }}"
+      register: n8n_started
+
+    - name: Wait for n8n to be ready
+      uri:
+        url: "{{ n8n_protocol | default('http') }}://{{ n8n_host | default('localhost') }}:{{ n8n_port | default('5678') }}/healthz"
+        method: GET
+        status_code: 200
+        timeout: 10
+      register: n8n_health
+      until: n8n_health is succeeded
+      retries: 12
+      delay: 5
+      ignore_errors: yes
+
+  when: n8n_container.container is not defined or n8n_container.container.State.Status != 'running'
+  notify: Log n8n start status
