@@ -41,27 +41,33 @@ A desktop application that automates email responses using local LLMs (via Ollam
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/automatyzer/app.git
    cd automatyzer/app
    ```
 
 2. **Install dependencies**
+
    ```bash
    make setup
    ```
+
    This will:
+
    - Install Node.js dependencies
    - Create a `.env` file from `sample.env`
    - Set up the environment
 
 3. **Configure your environment**
+
    ```bash
    # Edit the .env file with your settings
    nano .env
    ```
 
 4. **Start the application**
+
    ```bash
    make start
    ```
@@ -75,17 +81,17 @@ A desktop application that automates email responses using local LLMs (via Ollam
 
 The project includes a Makefile with useful commands:
 
-| Command         | Description                                |
-|-----------------|--------------------------------------------|
-| `make` or `make help` | Show this help message                  |
-| `make setup`    | Install dependencies and setup environment |
-| `make start`    | Start the application                     |
-| `make stop`     | Stop the application                      |
-| `make start-n8n`| Start n8n service                         |
-| `make test`     | Run tests                                 |
-| `make build`    | Build the application                     |
-| `make package`  | Create a distributable package            |
-| `make clean`    | Remove build artifacts and dependencies   |
+| Command               | Description                                |
+| --------------------- | ------------------------------------------ |
+| `make` or `make help` | Show this help message                     |
+| `make setup`          | Install dependencies and setup environment |
+| `make start`          | Start the application                      |
+| `make stop`           | Stop the application                       |
+| `make start-n8n`      | Start n8n service                          |
+| `make test`           | Run tests                                  |
+| `make build`          | Build the application                      |
+| `make package`        | Create a distributable package             |
+| `make clean`          | Remove build artifacts and dependencies    |
 
 ## 🔧 Configuration
 
@@ -269,6 +275,7 @@ Project Link: [https://github.com/automatyzer/app](https://github.com/automatyze
 - [Electron](https://www.electronjs.org/) - For the desktop application framework
 
 ## Prerequisites
+
 - Node.js 16+
 - Docker (for n8n)
 - Ollama or Bielik installed locally
@@ -276,12 +283,14 @@ Project Link: [https://github.com/automatyzer/app](https://github.com/automatyze
 ## Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/automatyzer/app.git
    cd app
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -293,6 +302,7 @@ Project Link: [https://github.com/automatyzer/app](https://github.com/automatyze
 ## Usage
 
 1. Start the application:
+
    ```bash
    npm start
    ```

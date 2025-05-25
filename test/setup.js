@@ -1,5 +1,5 @@
 // Configure test environment
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
 // Set test timeout to 30 seconds
 jest.setTimeout(30000);
