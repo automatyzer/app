@@ -1,4 +1,4 @@
-.PHONY: help install setup start stop clean test build package
+.PHONY: help install setup start stop clean test build package check-services
 
 # Colors
 GREEN  := $(shell tput -Txterm setaf 2)
@@ -41,8 +41,25 @@ setup: install
 	fi
 	@echo "${GREEN}✓ Setup complete${RESET}"
 
+## Check if required services are running
+check-services:
+	@echo "${YELLOW}Checking required services...${RESET}"
+	@if command -v ansible-playbook >/dev/null 2>&1; then \
+		if [ -f "scripts/check_services.sh" ]; then \
+			if ! ./scripts/check_services.sh; then \
+				echo "${YELLOW}Failed to start required services. Please check the logs.${RESET}"; \
+				exit 1; \
+			fi; \
+		else \
+			echo "${YELLOW}Service check script not found. Skipping service checks.${RESET}"; \
+		fi; \
+	else \
+		echo "${YELLOW}Ansible not found. Please install it to enable service checks.${RESET}"; \
+		echo "${YELLOW}You can install it with: sudo apt-get install ansible${RESET}"; \
+	fi
+
 ## Start the application
-start:
+start: check-services
 	@echo "${YELLOW}Starting application...${RESET}"
 	npm start
 
