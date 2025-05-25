@@ -24,7 +24,7 @@ fi
 # Start n8n container
 echo "Starting n8n on ${N8N_WEBHOOK_URL}"
 
-docker run -it --rm --name n8n \
+docker run -d --rm --name n8n \
   -p ${N8N_PORT}:5678 \
   -v ~/.n8n:/home/node/.n8n \
   -e N8N_HOST=${N8N_HOST} \
