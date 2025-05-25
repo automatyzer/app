@@ -1,9 +1,10 @@
+![app.png](app.png)
+
 <div align="center">
   <h1>📧 Mail LLM Automation</h1>
   
   [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
   [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
-  [![Test Status](https://github.com/automatyzer/app/actions/workflows/test.yml/badge.svg)](https://github.com/automatyzer/app/actions)
   [![Code Coverage](https://img.shields.io/codecov/c/github/automatyzer/app/main)](https://codecov.io/gh/automatyzer/app)
   [![Docker Pulls](https://img.shields.io/docker/pulls/n8nio/n8n?label=n8n%20pulls)](https://hub.docker.com/r/n8nio/n8n)
   [![Ollama](https://img.shields.io/badge/Ollama-✓-blue)](https://ollama.ai/)
