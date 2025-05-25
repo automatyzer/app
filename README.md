@@ -1,19 +1,29 @@
-![app.png](app.png)
-
 <div align="center">
-  <h1>📧 Mail LLM Automation</h1>
+  <h1>🤖 Automatyzer</h1>
+  <h3>Automated Email Processing with Local LLMs</h3>
   
   [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
   [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+  [![GitHub Issues](https://img.shields.io/github/issues/automatyzer/app)](https://github.com/automatyzer/app/issues)
+  [![Test Status](https://github.com/automatyzer/app/actions/workflows/test.yml/badge.svg)](https://github.com/automatyzer/app/actions)
   [![Code Coverage](https://img.shields.io/codecov/c/github/automatyzer/app/main)](https://codecov.io/gh/automatyzer/app)
   [![Docker Pulls](https://img.shields.io/docker/pulls/n8nio/n8n?label=n8n%20pulls)](https://hub.docker.com/r/n8nio/n8n)
   [![Ollama](https://img.shields.io/badge/Ollama-✓-blue)](https://ollama.ai/)
   [![Electron](https://img.shields.io/badge/Electron-✓-9FEAF9.svg)](https://www.electronjs.org/)
+  [![Code Style: Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io/)
   
-  <p>Automate email responses with local LLMs (Ollama/Bielik) and n8n workflows</p>
+  <p>Automate email processing with local LLMs (Ollama/Bielik) and n8n workflows</p>
 </div>
 
-A desktop application that automates email responses using local LLMs (via Ollama/Bielik) and n8n workflows. This application allows you to process incoming emails, generate responses using local language models, and automate email workflows with n8n.
+Automatyzer is a powerful desktop application that brings AI-powered email automation to your local machine. It combines the power of local LLMs (via Ollama/Bielik) with n8n's workflow automation to process emails, generate intelligent responses, and automate email-related tasks - all while keeping your data private and secure.
+
+## 🌟 Why Automatyzer?
+
+- **Privacy First**: All processing happens locally on your machine
+- **No Cloud Dependencies**: Works completely offline after setup
+- **Customizable**: Tailor the AI responses and workflows to your needs
+- **Open Source**: Transparent codebase with an active community
+- **Extensible**: Easy to add new features and integrations
 
 ## ✨ Features
 
@@ -37,7 +47,21 @@ A desktop application that automates email responses using local LLMs (via Ollam
 - [Ollama](https://ollama.ai/) installed locally
 - Git (for development)
 
-> **Note**: For production use, ensure you have at least 8GB of RAM and 10GB of free disk space.
+> **System Requirements**:
+> - 8GB RAM minimum (16GB recommended for better performance)
+> - 10GB free disk space
+> - x86_64 or ARM64 architecture
+> - Linux/macOS/Windows 10+
+
+### 🐳 Docker Setup (Alternative)
+
+If you prefer using Docker for the entire application:
+
+```bash
+docker-compose up -d
+```
+
+This will start all required services including n8n and the main application.
 
 ### Installation
 

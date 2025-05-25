@@ -1,0 +1,16 @@
+---
+- name: Check and ensure required services are running
+  hosts: localhost
+  connection: local
+  become: true
+  gather_facts: true
+
+  roles:
+    - ollama
+    # Add other service roles here if needed
+
+  tasks:
+    - name: Display final status
+      debug:
+        msg: "All required services are running"
+      when: not ansible_check_mode

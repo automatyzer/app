@@ -171,17 +171,16 @@ LLM_DEFAULT_MODEL=ollama
 
 ## 📦 **4. GOTOWY PRODUKT DO DEMO**
 
-* ✅ działa lokalnie (n8n, LLM, IMAP/SMTP)
-* ✅ wybór modelu AI przez interfejs
-* ✅ proste odp. na maile
-* ✅ automatyczne odpowiedzi do klienta
-* ✅ frontend do pokazania
+- ✅ działa lokalnie (n8n, LLM, IMAP/SMTP)
+- ✅ wybór modelu AI przez interfejs
+- ✅ proste odp. na maile
+- ✅ automatyczne odpowiedzi do klienta
+- ✅ frontend do pokazania
 
 ---
 
-
-* 📦  plik `.exe`/`.AppImage`?
-* 🧠 dodac workflow z webscrapingiem lub Excela
+- 📦 plik `.exe`/`.AppImage`?
+- 🧠 dodac workflow z webscrapingiem lub Excela
 
 // Projekt: Lokalna aplikacja desktopowa do przetwarzania danych z emaili z odpowiedziami generowanymi przez lokalne LLM
 
@@ -195,12 +194,12 @@ LLM_DEFAULT_MODEL=ollama
 
 // STRUKTURA:
 // /app
-//   - main.js (Electron bootstrap)
-//   - n8n_setup.sh (skrypt auto-instalacyjny n8n)
-//   - llm-router.js (obsługa lokalnych LLM)
-//   - api.yaml (OpenAPI spec do UI)
-//   - ui/ (prosty frontend)
-//   - workflows/
+// - main.js (Electron bootstrap)
+// - n8n_setup.sh (skrypt auto-instalacyjny n8n)
+// - llm-router.js (obsługa lokalnych LLM)
+// - api.yaml (OpenAPI spec do UI)
+// - ui/ (prosty frontend)
+// - workflows/
 
 // ======== plik: main.js =========
 const { app, BrowserWindow } = require('electron');
@@ -208,32 +207,33 @@ const { exec } = require('child_process');
 const path = require('path');
 
 function createWindow() {
-  const win = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
-    }
-  });
+const win = new BrowserWindow({
+width: 1200,
+height: 800,
+webPreferences: {
+nodeIntegration: true,
+contextIsolation: false
+}
+});
 
-  win.loadFile('ui/index.html');
+win.loadFile('ui/index.html');
 
-  // Start n8n
-  exec('bash ./n8n_setup.sh', (err, stdout, stderr) => {
-    if (err) console.error(`n8n error: ${stderr}`);
-    else console.log(`n8n started: ${stdout}`);
-  });
+// Start n8n
+exec('bash ./n8n_setup.sh', (err, stdout, stderr) => {
+if (err) console.error(`n8n error: ${stderr}`);
+else console.log(`n8n started: ${stdout}`);
+});
 }
 
 app.whenReady().then(() => {
-  createWindow();
+createWindow();
 });
 
 // ========== plik: n8n_setup.sh =========
 #!/bin/bash
 
 # Uruchamia lokalny n8n (wymaga Node.js i n8n zainstalowanego globalnie)
+
 export DB_TYPE=sqlite
 export GENERIC_TIMEZONE=Europe/Warsaw
 n8n start --tunnel
@@ -247,25 +247,26 @@ const app = express();
 app.use(bodyParser.json());
 
 app.post('/llm', async (req, res) => {
-  const { prompt, model } = req.body;
-  let endpoint = '';
-  if (model === 'ollama') endpoint = 'http://localhost:11434/api/generate';
-  else if (model === 'bielik') endpoint = 'http://localhost:3000/api'; // założmy, że proxy
+const { prompt, model } = req.body;
+let endpoint = '';
+if (model === 'ollama') endpoint = 'http://localhost:11434/api/generate';
+else if (model === 'bielik') endpoint = 'http://localhost:3000/api'; // założmy, że proxy
 
-  try {
-    const response = await axios.post(endpoint, {
-      prompt,
-      model: model === 'ollama' ? 'llama3' : undefined
-    });
-    res.json(response.data);
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
+try {
+const response = await axios.post(endpoint, {
+prompt,
+model: model === 'ollama' ? 'llama3' : undefined
+});
+res.json(response.data);
+} catch (e) {
+res.status(500).json({ error: e.message });
+}
 });
 
 app.listen(7000, () => console.log('LLM router listening on port 7000'));
 
 // ========== plik: ui/index.html =========
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -299,6 +300,7 @@ app.listen(7000, () => console.log('LLM router listening on port 7000'));
         document.getElementById('result').innerText = JSON.stringify(data, null, 2);
       };
     </script>
+
   </body>
 </html>
 
@@ -318,7 +320,6 @@ app.listen(7000, () => console.log('LLM router listening on port 7000'));
 
 // Gotowe do demo lokalnie, z opcją skalowania
 
-
 Świetnie! Masz już backend (`llm-router.js`) i prosty HTML UI — teraz rozbudujemy frontend jako **pełną aplikację w React** z UI do wysyłania promptów do lokalnych modeli (Ollama i Bielik) oraz podglądem odpowiedzi.
 
 ---
@@ -327,12 +328,12 @@ app.listen(7000, () => console.log('LLM router listening on port 7000'));
 
 **Nowy folder: `ui-react/`**, zawierający aplikację React z:
 
-* Formą wyboru modelu (dropdown: Ollama / Bielik),
-* Polem promptu,
-* Przycisk "Wyślij do LLM",
-* Sekcją podglądu odpowiedzi (ładne formatowanie),
-* Kompatybilnością z Electronem (brak serwera dev),
-* Możliwością łatwego rozbudowania (np. dodanie historii zapytań).
+- Formą wyboru modelu (dropdown: Ollama / Bielik),
+- Polem promptu,
+- Przycisk "Wyślij do LLM",
+- Sekcją podglądu odpowiedzi (ładne formatowanie),
+- Kompatybilnością z Electronem (brak serwera dev),
+- Możliwością łatwego rozbudowania (np. dodanie historii zapytań).
 
 ---
 
@@ -379,22 +380,22 @@ ui-react/
 ## 2. ⚙️ `vite.config.js`
 
 ```js
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import path from 'path';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
 
 export default defineConfig({
-  root: './',
+  root: "./",
   plugins: [react()],
   build: {
-    outDir: '../app/ui-react-dist',
-    emptyOutDir: true
+    outDir: "../app/ui-react-dist",
+    emptyOutDir: true,
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
-    }
-  }
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
 });
 ```
 
@@ -422,11 +423,11 @@ export default defineConfig({
 ## 4. ⚛️ `src/index.js`
 
 ```js
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 ```
 
 ---
@@ -435,10 +436,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 
 ```js
 export async function sendPrompt(prompt, model) {
-  const res = await fetch('http://localhost:7000/llm', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt, model })
+  const res = await fetch("http://localhost:7000/llm", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt, model }),
   });
   return res.json();
 }
@@ -449,12 +450,12 @@ export async function sendPrompt(prompt, model) {
 ## 6. 💡 `src/App.jsx`
 
 ```jsx
-import React, { useState } from 'react';
-import { sendPrompt } from './api';
+import React, { useState } from "react";
+import { sendPrompt } from "./api";
 
 const App = () => {
-  const [prompt, setPrompt] = useState('');
-  const [model, setModel] = useState('ollama');
+  const [prompt, setPrompt] = useState("");
+  const [model, setModel] = useState("ollama");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -467,7 +468,7 @@ const App = () => {
   };
 
   return (
-    <div style={{ padding: 20, fontFamily: 'sans-serif' }}>
+    <div style={{ padding: 20, fontFamily: "sans-serif" }}>
       <h2>🧠 Lokalny LLM Interfejs</h2>
       <form onSubmit={handleSubmit}>
         <textarea
@@ -475,7 +476,7 @@ const App = () => {
           onChange={(e) => setPrompt(e.target.value)}
           rows={6}
           placeholder="Wpisz prompt z maila..."
-          style={{ width: '100%', marginBottom: 10 }}
+          style={{ width: "100%", marginBottom: 10 }}
         />
         <br />
         <select value={model} onChange={(e) => setModel(e.target.value)}>
@@ -491,7 +492,7 @@ const App = () => {
       {result && (
         <div>
           <h3>📥 Odpowiedź:</h3>
-          <pre style={{ background: '#eee', padding: 10 }}>
+          <pre style={{ background: "#eee", padding: 10 }}>
             {JSON.stringify(result, null, 2)}
           </pre>
         </div>
@@ -520,7 +521,7 @@ export default App;
    W `main.js`:
 
    ```js
-   win.loadFile('ui-react-dist/index.html');
+   win.loadFile("ui-react-dist/index.html");
    ```
 
 3. Od teraz masz **interaktywny, rozszerzalny frontend React + LLM router lokalny**.
@@ -529,8 +530,8 @@ export default App;
 
 Chcesz dorzucić:
 
-* 🧠 historię rozmów / logi?
-* 💼 integrację z mailem przez n8n z poziomu GUI?
-* 🔌 plugin do przetwarzania Excela lub PDF?
+- 🧠 historię rozmów / logi?
+- 💼 integrację z mailem przez n8n z poziomu GUI?
+- 🔌 plugin do przetwarzania Excela lub PDF?
 
 Daj znać — mogę zbudować gotowe bloki.

@@ -1,0 +1,61 @@
+---
+- name: Check if Ollama is installed
+  command: which ollama
+  register: ollama_installed
+  ignore_errors: yes
+  changed_when: false
+  check_mode: no
+
+- name: Install Ollama if not installed
+  block:
+    - name: Download Ollama install script
+      get_url:
+        url: https://ollama.ai/install.sh
+        dest: /tmp/install_ollama.sh
+        mode: '0755'
+
+    - name: Run Ollama installer
+      command: /tmp/install_ollama.sh
+      args:
+        creates: /usr/local/bin/ollama
+      become: yes
+  when: ollama_installed.rc != 0
+  tags: [install]
+
+- name: Check if Ollama service is running
+  uri:
+    url: http://localhost:11434/api/tags
+    method: GET
+    status_code: 200
+    timeout: 5
+  register: ollama_status
+  ignore_errors: yes
+  changed_when: false
+  check_mode: no
+
+- name: Start Ollama service if not running
+  block:
+    - name: Start Ollama service
+      command: systemctl start ollama
+      become: yes
+      register: ollama_started
+
+    - name: Wait for Ollama to start
+      wait_for_connection:
+        delay: 2
+        timeout: 30
+
+    - name: Verify Ollama is running
+      uri:
+        url: http://localhost:11434/api/tags
+        method: GET
+        status_code: 200
+        timeout: 5
+      register: ollama_verify
+      until: ollama_verify is succeeded
+      retries: 5
+      delay: 2
+      ignore_errors: yes
+
+  when: ollama_status.status != 200
+  notify: Log Ollama start status
