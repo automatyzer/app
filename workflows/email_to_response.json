@@ -1,0 +1,141 @@
+{
+  "name": "Email to LLM Response",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "getAll",
+        "options": {}
+      },
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Przetwórz wiadomości e-mail\nconst messages = items.map(item => {\n  const message = item.json;\n  return {\n    json: {\n      id: message.id,\n      subject: message.subject || '(Brak tematu)',\n      from: message.from,\n      to: message.to,\n      date: message.date,\n      body: message.body,\n      threadId: message.threadId\n    }\n  };\n});\n\nreturn messages;"
+      },
+      "name": "Przetwórz wiadomości",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Dla każdej wiadomości",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "={{ $node[\"LLM API\"].json[\"apiUrl\"] }}/generate",
+        "jsonParameters": true,
+        "options": {}
+      },
+      "name": "Zapytanie do LLM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Przygotuj odpowiedź\nconst message = items[0].json;\nconst llmResponse = $input.all()[1].json;\n\nreturn {\n  json: {\n    to: message.from,\n    subject: 'Re: ' + message.subject,\n    text: llmResponse.response || 'Dziękuję za wiadomość. Przetwarzam Twoje zapytanie.',\n    inReplyTo: message.id,\n    threadId: message.threadId\n  }\n};"
+      },
+      "name": "Przygotuj odpowiedź",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "send",
+        "options": {}
+      },
+      "name": "Wyślij odpowiedź",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "LLM API",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [850, 300],
+      "parameters": {
+        "functionCode": "return {\n  json: {\n    apiUrl: process.env.LLM_API_URL || 'http://localhost:11434/api'\n  }\n};"
+      }
+    }
+  ],
+  "connections": {
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Przetwórz wiadomości",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Przetwórz wiadomości": {
+      "main": [
+        [
+          {
+            "node": "Dla każdej wiadomości",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dla każdej wiadomości": {
+      "main": [
+        [
+          {
+            "node": "Zapytanie do LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zapytanie do LLM": {
+      "main": [
+        [
+          {
+            "node": "Przygotuj odpowiedź",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Przygotuj odpowiedź": {
+      "main": [
+        [
+          {
+            "node": "Wyślij odpowiedź",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "tags": [],
+  "pinData": {}
+}

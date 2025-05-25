@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mail LLM Automation</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .sidebar {
+      width: 300px;
+      height: 100vh;
+      border-right: 1px solid #e2e8f0;
+    }
+    .main-content {
+      flex: 1;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .message {
+      max-width: 80%;
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+    }
+    .user-message {
+      background-color: #3b82f6;
+      color: white;
+      margin-left: auto;
+      margin-right: 0;
+    }
+    .assistant-message {
+      background-color: #f1f5f9;
+      color: #1e293b;
+      margin-right: auto;
+      margin-left: 0;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 flex">
+  <!-- Sidebar -->
+  <div class="sidebar bg-white p-4">
+    <h1 class="text-xl font-bold mb-6">Mail LLM Automation</h1>
+    
+    <div class="mb-6">
+      <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Workflows</h2>
+      <ul class="space-y-1">
+        <li><a href="#" class="text-blue-600 hover:underline">Email Response</a></li>
+        <li><a href="#" class="text-gray-600 hover:underline">Email Summary</a></li>
+        <li><a href="#" class="text-gray-600 hover:underline">Follow-up Reminder</a></li>
+      </ul>
+    </div>
+
+    <div class="mb-6">
+      <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Settings</h2>
+      <ul class="space-y-1">
+        <li><a href="#" class="text-gray-600 hover:underline">LLM Settings</a></li>
+        <li><a href="#" class="text-gray-600 hover:underline">Email Accounts</a></li>
+        <li><a href="#" class="text-gray-600 hover:underline">Workflow Editor</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content flex flex-col">
+    <!-- Chat Header -->
+    <div class="bg-white border-b p-4">
+      <h2 class="text-lg font-semibold">Email Response Workflow</h2>
+      <p class="text-sm text-gray-500">Automated email responses powered by local LLM</p>
+    </div>
+
+    <!-- Chat Messages -->
+    <div id="chat-messages" class="flex-1 p-4 space-y-4 overflow-y-auto">
+      <div class="message assistant-message">
+        <p>Hello! I'm your AI assistant. How can I help you with your emails today?</p>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="border-t p-4 bg-white">
+      <div class="flex space-x-2">
+        <select id="model-select" class="border rounded px-3 py-2">
+          <option value="llama2">LLaMA 2</option>
+          <option value="mistral">Mistral</option>
+          <option value="bielik">Bielik</option>
+        </select>
+        <input 
+          type="text" 
+          id="user-input" 
+          placeholder="Type your message..." 
+          class="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+        <button 
+          id="send-button" 
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Send
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // IPC communication with main process
+    const { ipcRenderer } = require('electron');
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const chatMessages = document.getElementById('chat-messages');
+      const userInput = document.getElementById('user-input');
+      const sendButton = document.getElementById('send-button');
+      const modelSelect = document.getElementById('model-select');
+
+      // Handle send button click
+      sendButton.addEventListener('click', sendMessage);
+      
+      // Handle Enter key
+      userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          sendMessage();
+        }
+      });
+
+      async function sendMessage() {
+        const message = userInput.value.trim();
+        if (!message) return;
+
+        // Add user message to chat
+        addMessage('user', message);
+        userInput.value = '';
+
+        try {
+          // Show typing indicator
+          const typingIndicator = addMessage('assistant', 'Thinking...');
+          
+          // Get selected model
+          const model = modelSelect.value;
+          
+          // Send message to main process
+          const response = await ipcRenderer.invoke('llm-request', {
+            prompt: message,
+            model: model
+          });
+          
+          // Update typing indicator with actual response
+          typingIndicator.innerHTML = `<p>${response.replace(/\n/g, '<br>')}</p>`;
+          
+        } catch (error) {
+          console.error('Error:', error);
+          addMessage('assistant', `Error: ${error.message}`);
+        }
+      }
+
+      
+      function addMessage(sender, text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        messageDiv.innerHTML = `<p>${text}</p>`;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return messageDiv;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "port": 993,
+        "secure": true,
+        "host": "imap.gmail.com",
+        "user": "{{ $env.IMAP_USER }}",
+        "password": "{{ $env.IMAP_PASS }}",
+        "mailbox": "INBOX",
+        "action": "search"
+      },
+      "name": "Read Email",
+      "type": "n8n-nodes-base.imapEmail",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:7000/llm",
+        "method": "POST",
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "{\"prompt\":\"{{$json[\"text\"]}}\",\"model\":\"ollama\"}"
+      },
+      "name": "Call LLM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "{{ $env.SMTP_USER }}",
+        "toEmail": "{{$json[\"from\"]}}",
+        "subject": "Re: {{$json[\"subject\"]}}",
+        "text": "{{$json[\"response\"]}}",
+        "host": "{{ $env.SMTP_HOST }}",
+        "port": 587,
+        "secure": false,
+        "user": "{{ $env.SMTP_USER }}",
+        "password": "{{ $env.SMTP_PASS }}"
+      },
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [600, 300]
+    }
+  ],
+  "connections": {
+    "Read Email": {
+      "main": [["Call LLM"]]
+    },
+    "Call LLM": {
+      "main": [["Send Email"]]
+    }
+  }
+}
