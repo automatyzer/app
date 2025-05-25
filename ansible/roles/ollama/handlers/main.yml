@@ -2,14 +2,22 @@
 - name: Log Ollama start status
   debug:
     msg: |
+      =========================================
       Ollama service has been started successfully.
-      API is now available at http://localhost:11434
+      API is available at http://localhost:11434
+      Logs: {{ ollama_home }}/ollama.log
+      =========================================
   when: ollama_verify is defined and ollama_verify.status == 200
 
 - name: Log Ollama start failure
   debug:
     msg: |
-      [WARNING] Failed to start Ollama service.
-      Please check the service logs: journalctl -u ollama -n 50
-  when: ollama_verify is defined and ollama_verify.status != 200
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      [ERROR] Failed to start Ollama service.
+      Please check the logs: {{ ollama_home }}/ollama.log
+      
+      You can try starting it manually with:
+      nohup ollama serve > {{ ollama_home }}/ollama.log 2>&1 &
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  when: ollama_verify is not defined or ollama_verify.status != 200
   failed_when: true

@@ -5,22 +5,19 @@
   ignore_errors: yes
   changed_when: false
   check_mode: no
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/usr/local/bin:/usr/local/sbin"
 
-- name: Install Ollama if not installed
-  block:
-    - name: Download Ollama install script
-      get_url:
-        url: https://ollama.ai/install.sh
-        dest: /tmp/install_ollama.sh
-        mode: '0755'
+- name: Set Ollama home directory
+  set_fact:
+    ollama_home: "{{ ansible_env.HOME }}/.ollama"
 
-    - name: Run Ollama installer
-      command: /tmp/install_ollama.sh
-      args:
-        creates: /usr/local/bin/ollama
-      become: yes
-  when: ollama_installed.rc != 0
-  tags: [install]
+- name: Create Ollama home directory
+  file:
+    path: "{{ ollama_home }}"
+    state: directory
+    mode: '0755'
+  when: not ansible_check_mode
 
 - name: Check if Ollama service is running
   uri:
@@ -33,17 +30,34 @@
   changed_when: false
   check_mode: no
 
-- name: Start Ollama service if not running
+- name: Start Ollama if not running (user process)
   block:
-    - name: Start Ollama service
-      command: systemctl start ollama
-      become: yes
-      register: ollama_started
+    - name: Kill any existing Ollama processes
+      command: pkill -f "ollama serve"
+      ignore_errors: yes
+      changed_when: false
+      async: 0
+      poll: 0
+
+    - name: Start Ollama in the background
+      command: nohup ollama serve > {{ ollama_home }}/ollama.log 2>&1 &
+      async: 1
+      poll: 0
+      environment:
+        OLLAMA_HOST: "0.0.0.0:11434"
+        OLLAMA_ORIGINS: "*"
+        HOME: "{{ ansible_env.HOME }}"
 
     - name: Wait for Ollama to start
-      wait_for_connection:
-        delay: 2
+      wait_for:
+        port: 11434
+        host: 127.0.0.1
         timeout: 30
+      register: wait_for_ollama
+      until: wait_for_ollama is succeeded
+      retries: 10
+      delay: 3
+      ignore_errors: yes
 
     - name: Verify Ollama is running
       uri:
@@ -57,5 +71,5 @@
       delay: 2
       ignore_errors: yes
 
-  when: ollama_status.status != 200
+  when: ollama_status.status != 200 or ollama_installed.rc != 0
   notify: Log Ollama start status
