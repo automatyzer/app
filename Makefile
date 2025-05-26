@@ -43,16 +43,17 @@ setup: install
 
 ## Start Ollama service
 start-ollama:
-	@echo "${YELLOW}Starting Ollama service...${RESET}"
-	@if [ -f "scripts/start_ollama.sh" ]; then \
-		if ./scripts/start_ollama.sh; then \
+	@if [ -f "scripts/manage_ollama.sh" ]; then \
+		if ./scripts/manage_ollama.sh status >/dev/null 2>&1; then \
+			echo "${GREEN}✓ Ollama service is already running${RESET}"; \
+		elif ./scripts/manage_ollama.sh start; then \
 			echo "${GREEN}✓ Ollama service started${RESET}"; \
 		else \
 			echo "${RED}✗ Failed to start Ollama service${RESET}"; \
 			exit 1; \
 		fi; \
 	else \
-		echo "${YELLOW}Ollama start script not found. Make sure Ollama is running.${RESET}"; \
+		echo "${YELLOW}Ollama management script not found. Make sure Ollama is running.${RESET}"; \
 	fi
 
 ## Start n8n service
