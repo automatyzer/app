@@ -34,8 +34,8 @@ log "INFO" "Logs: ${OLLAMA_LOG}"
 # Kill any existing Ollama processes
 pkill -f "ollama serve" || true
 
-# Start Ollama in the background
-nohup ollama serve >> "${OLLAMA_LOG}" 2>&1 &
+# Start Ollama in the background, binding to 127.0.0.1
+nohup ollama serve --host 127.0.0.1:11434 >> "${OLLAMA_LOG}" 2>&1 &
 OLLAMA_PID=$!
 
 echo "${OLLAMA_PID}" > "${OLLAMA_HOME}/ollama.pid"

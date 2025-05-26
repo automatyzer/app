@@ -41,22 +41,41 @@ setup: install
 	fi
 	@echo "${GREEN}✓ Setup complete${RESET}"
 
-## Check if required services are running
-check-services:
-	@echo "${YELLOW}Checking required services...${RESET}"
-	@if command -v ansible-playbook >/dev/null 2>&1; then \
-		if [ -f "scripts/check_services.sh" ]; then \
-			if ! ./scripts/check_services.sh; then \
-				echo "${YELLOW}Failed to start required services. Please check the logs.${RESET}"; \
-				exit 1; \
-			fi; \
+## Start Ollama service
+start-ollama:
+	@echo "${YELLOW}Starting Ollama service...${RESET}"
+	@if [ -f "scripts/start_ollama.sh" ]; then \
+		if ./scripts/start_ollama.sh; then \
+			echo "${GREEN}✓ Ollama service started${RESET}"; \
 		else \
-			echo "${YELLOW}Service check script not found. Skipping service checks.${RESET}"; \
+			echo "${RED}✗ Failed to start Ollama service${RESET}"; \
+			exit 1; \
 		fi; \
 	else \
-		echo "${YELLOW}Ansible not found. Please install it to enable service checks.${RESET}"; \
-		echo "${YELLOW}You can install it with: sudo apt-get install ansible${RESET}"; \
+		echo "${YELLOW}Ollama start script not found. Make sure Ollama is running.${RESET}"; \
 	fi
+
+## Start n8n service
+start-n8n:
+	@echo "${YELLOW}Starting n8n service...${RESET}"
+	@if [ -f "n8n_setup.sh" ]; then \
+		if docker ps -a --format '{{.Names}}' | grep -q '^n8n$$'; then \
+			echo "${YELLOW}Removing existing n8n container...${RESET}"; \
+			docker rm -f n8n >/dev/null 2>&1 || true; \
+		fi; \
+		if ./n8n_setup.sh; then \
+			echo "${GREEN}✓ n8n service started${RESET}"; \
+		else \
+			echo "${RED}✗ Failed to start n8n service${RESET}"; \
+			exit 1; \
+		fi; \
+	else \
+		echo "${YELLOW}n8n setup script not found. Make sure n8n is running.${RESET}"; \
+	fi
+
+## Check if required services are running
+check-services: start-ollama start-n8n
+	@echo "${GREEN}✓ All required services are running${RESET}"
 
 ## Start the application
 start: check-services
@@ -69,10 +88,7 @@ stop:
 	@pkill -f "electron ." || true
 	@echo "${GREEN}✓ Application stopped${RESET}"
 
-## Start n8n service
-start-n8n:
-	@echo "${YELLOW}Starting n8n...${RESET}"
-	@./n8n_setup.sh
+
 
 ## Run tests
 test:
